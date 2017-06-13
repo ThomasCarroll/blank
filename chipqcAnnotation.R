@@ -1,3 +1,5 @@
+require(GenomicFeatures)
+require(rtracklayer)
 
 ChIPQCAnnotationFromGFF3 <- function(GFF3,GeneAnnotation="Custom"){
   txdbFromGFF3 <- makeTxDbFromGFF(referenceFiles[["gtf"]],format = "gff3")

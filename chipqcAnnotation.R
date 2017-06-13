@@ -1,8 +1,8 @@
-require(GenomicFeatures)
-require(rtracklayer)
+library(GenomicFeatures)
+library(rtracklayer)
 
 ChIPQCAnnotationFromGFF3 <- function(GFF3,GeneAnnotation="Custom"){
-  txdbFromGFF3 <- makeTxDbFromGFF(referenceFiles[["gtf"]],format = "gff3")
+  txdbFromGFF3 <- makeTxDbFromGFF(GFF3,format = "gff3")
   return(ChIPQCAnnotationFromTXDB(txdbFromGFF3,GeneAnnotation))
 }
 ChIPQCAnnotationFromTXDB <- function(txdb,GeneAnnotation="Custom",AllChr=NULL){
@@ -15,13 +15,15 @@ ChIPQCAnnotationFromTXDB <- function(txdb,GeneAnnotation="Custom",AllChr=NULL){
   posAllTranscripts <- Alltranscripts[strand(Alltranscripts) == "+"]
   posAllTranscripts <- posAllTranscripts[!(start(posAllTranscripts)-20000 < 0)]
   negAllTranscripts <- Alltranscripts[strand(Alltranscripts) == "-"]
-  chrLimits <- seqlengths(negAllTranscripts)[as.character(seqnames(negAllTranscripts))]      
-  negAllTranscripts <- negAllTranscripts[!(end(negAllTranscripts)+20000 > chrLimits)]      
+  chrLimits <- seqlengths(negAllTranscripts)[as.character(seqnames(negAllTranscripts))]
+  if(all(!is.na(chrLimits))){
+    negAllTranscripts <- negAllTranscripts[!(end(negAllTranscripts)+20000 > chrLimits)] 
+  }
   Alltranscripts <- c(posAllTranscripts,negAllTranscripts)
   Promoters500 <-  reduce(flank(Alltranscripts,500))    
   Promoters2000to500 <-  reduce(flank(Promoters500,1500))
   LongPromoter20000to2000  <- reduce(flank(Promoters2000to500,18000))
-  if(!missing(AllChr) & !is.null(AllChr)){
+  if(!is.null(AllChr)){
     All5utrs <- GetGRanges(All5utrs,AllChr=AllChr)
     All3utrs <- GetGRanges(All3utrs,AllChr=AllChr)
     Allcds <- GetGRanges(Allcds,AllChr=AllChr)

@@ -2,7 +2,7 @@ library(GenomicFeatures)
 library(rtracklayer)
 
 ChIPQCAnnotationFromGFF3 <- function(GFF3,GeneAnnotation="Custom"){
-  txdbFromGFF3 <- makeTxDbFromGFF(GFF3,format = "gff3")
+  txdbFromGFF3 <- makeTxDbFromGFF(GFF3)
   return(ChIPQCAnnotationFromTXDB(txdbFromGFF3,GeneAnnotation))
 }
 ChIPQCAnnotationFromTXDB <- function(txdb,GeneAnnotation="Custom",AllChr=NULL){
@@ -16,7 +16,7 @@ ChIPQCAnnotationFromTXDB <- function(txdb,GeneAnnotation="Custom",AllChr=NULL){
   posAllTranscripts <- posAllTranscripts[!(start(posAllTranscripts)-20000 < 0)]
   negAllTranscripts <- Alltranscripts[strand(Alltranscripts) == "-"]
   chrLimits <- seqlengths(negAllTranscripts)[as.character(seqnames(negAllTranscripts))]
-  if(all(!is.na(chrLimits))){
+  if(!any(is.na(chrLimits))){
     negAllTranscripts <- negAllTranscripts[!(end(negAllTranscripts)+20000 > chrLimits)] 
   }
   Alltranscripts <- c(posAllTranscripts,negAllTranscripts)
